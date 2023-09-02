@@ -1,0 +1,31 @@
+<div class="bg-gradient-to-r from-green-700 to-green-500 min-w-full p-3 text-white flex justify-between mb-3">
+  <div class="font-extrabold text-2xl pr-2">
+    <a href="/">Foundation Year Calendar</a>
+  </div>
+  <div class="flex">
+    <button hx-get="/toggle-display-endpoint" hx-swap="outerHTML" hx-target="#display-dropdown" class="mr-2">
+      Display
+    </button>
+    <div id="display-dropdown">
+      <!-- This dropdown can be populated based on server response or using another htmx call -->
+    </div>
+
+    <button hx-get="/toggle-menu-endpoint" hx-swap="outerHTML" hx-target="#menu-dropdown">
+      Menu
+    </button>
+    <div id="menu-dropdown">
+      <ul class="text-gray-700 text-sm font-semibold">
+        <li class="px-2 py-1 hover:bg-gray-300 cursor-pointer">
+          <a href="login">Login</a>
+        </li>
+        <span class="px-2 py-1 hover:bg-gray-300 cursor-pointer">
+          <label>
+            <input type="checkbox" value="English" hx-post="/fetch-curriculum" hx-swap="outerHTML"
+              hx-target="#calendar-container" onchange="this.checked && this.click()" />
+            English
+          </label>
+        </span>
+      </ul>
+    </div>
+  </div>
+</div>
