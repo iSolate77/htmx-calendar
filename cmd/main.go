@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/labstack/echo/v4"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 type Templatereader struct {
@@ -23,6 +24,7 @@ func main() {
 	}
 
 	e := echo.New()
+	e.Static("/static", "web/static")
 
 	e.Renderer = &Templatereader{
 		templates: tmpls,
@@ -31,6 +33,17 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "base.html", nil)
 	})
+
+	e.GET("/toggle-menu-endpoint", menuDropdown)
+
+	e.GET("/test", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Test response")
+	})
+
 	log.Println("Server started on port 8080")
-	http.ListenAndServe(":8080", nil)
+	e.Start(":8080")
+}
+
+func menuDropdown(c echo.Context) error {
+	return c.Render(http.StatusOK, "dropdownMenu.html", nil)
 }

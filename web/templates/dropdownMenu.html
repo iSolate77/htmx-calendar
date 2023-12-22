@@ -1,0 +1,18 @@
+<ul class="text-gray-700 text-sm font-semibold">
+  <li class="px-2 py-1 hover:bg-gray-300 cursor-pointer">
+    <a href="login">Login</a>
+  </li>
+  <span class="px-2 py-1 hover:bg-gray-300 cursor-pointer">
+    <label>
+      <input
+        type="checkbox"
+        value="English"
+        hx-post="/fetch-curriculum"
+        hx-swap="outerHTML"
+        hx-target="#calendar-container"
+        hx-trigger="change"
+      />
+      English
+    </label>
+  </span>
+</ul>

@@ -10,22 +10,11 @@
       <!-- This dropdown can be populated based on server response or using another htmx call -->
     </div>
 
-    <button hx-get="/toggle-menu-endpoint" hx-swap="outerHTML" hx-target="#menu-dropdown">
+    <button hx-get="/toggle-menu-endpoint" hx-swap="innerHTML" hx-target="#menu-dropdown" hx-toggle="class: hidden"
+      hx-toggle-target="#menu-dropdown" class="relative">
       Menu
     </button>
-    <div id="menu-dropdown">
-      <ul class="text-gray-700 text-sm font-semibold">
-        <li class="px-2 py-1 hover:bg-gray-300 cursor-pointer">
-          <a href="login">Login</a>
-        </li>
-        <span class="px-2 py-1 hover:bg-gray-300 cursor-pointer">
-          <label>
-            <input type="checkbox" value="English" hx-post="/fetch-curriculum" hx-swap="outerHTML"
-              hx-target="#calendar-container" onchange="this.checked && this.click()" />
-            English
-          </label>
-        </span>
-      </ul>
-    </div>
+    <div id="menu-dropdown"
+      class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg z-10 hidden"></div>
   </div>
 </div>
