@@ -1,6 +1,6 @@
 module calendar
 
-go 1.21.0
+go 1.21.5
 
 require (
 	github.com/labstack/echo/v4 v4.11.2 // indirect
