@@ -4,12 +4,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Application's Title</title>
+  <title>Foundation Calendar</title>
   <link rel="stylesheet" href="/static/css/tailwind.css" />
   <script src="/static/js/htmx.min.js"></script>
 </head>
-{{ template "navbar.html" }}
+{{ template "navbar.html" . }}
 
-<body></body>
+<body>
+  <!-- build a table of week days -->
+  <div class="flex justify-around border-black border-2">Week 1</div>
+</body>
 
 </html>

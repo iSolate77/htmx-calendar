@@ -34,9 +34,9 @@ func main() {
 		return c.Render(http.StatusOK, "base.html", nil)
 	})
 
-	e.GET("/toggle-menu-endpoint", menuDropdown)
+	e.GET("/toggle-display-endpoint", menuDropdown)
 
-	e.GET("/test", func(c echo.Context) error {
+	e.GET("/status", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Test response")
 	})
 
