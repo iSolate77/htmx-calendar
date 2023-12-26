@@ -1,6 +1,7 @@
 package main
 
 import (
+	"calendar/pkg/api"
 	"html/template"
 	"io"
 	"log"
@@ -31,7 +32,15 @@ func main() {
 	}
 
 	e.GET("/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "base.html", nil)
+		mockData := api.GenerateMockData("2020-01-01", 16)
+		err = c.Render(http.StatusOK, "base.html", map[string]interface{}{
+			"Weeks": mockData,
+		})
+		if err != nil {
+			log.Printf("Error rendering template: %s", err.Error())
+			return c.String(http.StatusInternalServerError, "Error rendering template")
+		}
+		return nil
 	})
 
 	e.GET("/toggle-display-endpoint", menuDropdown)

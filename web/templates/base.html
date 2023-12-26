@@ -11,8 +11,28 @@
 {{ template "navbar.html" . }}
 
 <body>
-  <!-- build a table of week days -->
-  <div class="flex justify-around border-black border-2">Week 1</div>
+  <h2 class="text-2xl font-bold text-center mb-8">Semester 2</h2>
+  {{ range $index, $week := .Weeks }}
+  <div class="flex justify-between mb-4">
+    <div class="flex-shrink-0 w-20 text-left self-center text-lg font-semibold">
+      Week {{ $index }}
+      <br />
+      <span class="text-sm">Description</span>
+    </div>
+
+    {{ range $week }}
+    <div class="text-left self-center w-full flex flex-col h-full">
+      <div class="text-center border-y-2 border-x min-w-16">
+        <div>{{ .Date }}</div>
+        <div>{{ .DayOfWeek }}</div>
+      </div>
+      <div class="w-15 text-center border border-gray-100 p-5 flex-1 flex items-center justify-center">
+        <div class="h-full w-full">{{ .Info }}</div>
+      </div>
+    </div>
+    {{ end }}
+  </div>
+  {{ end }}
 </body>
 
 </html>
