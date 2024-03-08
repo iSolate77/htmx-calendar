@@ -11,7 +11,10 @@ type Day struct {
 	Info      string
 }
 
-type Week []Day
+type Week struct {
+	Days []Day
+	Desc string
+}
 
 var daysOfWeek = []string{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"}
 

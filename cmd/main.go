@@ -1,12 +1,12 @@
 package main
 
 import (
-	"calendar/pkg/api"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
 
+	"github.com/iSolate77/htmx-calendar/pkg/api"
 	"github.com/labstack/echo/v4"
 )
 
