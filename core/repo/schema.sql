@@ -52,3 +52,13 @@ CREATE TABLE IF NOT EXISTS AcademicCalendar (
     HolidayID INTEGER REFERENCES Holidays(HolidayID),
     Description TEXT
 );
+
+CREATE TABLE IF NOT EXISTS CurriculumSchedule (
+    ScheduleID SERIAL PRIMARY KEY,
+    CurriculumID INTEGER NOT NULL REFERENCES Curriculum(CurriculumID),
+    SubjectID INTEGER NOT NULL REFERENCES Subjects(SubjectID),
+    SemesterID INTEGER NOT NULL REFERENCES Semesters(SemesterID),
+    DayOffset INTEGER NOT NULL,
+    Description TEXT NOT NULL,
+    UNIQUE (CurriculumID, SubjectID, SemesterID, DayOffset)
+);
