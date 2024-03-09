@@ -38,3 +38,26 @@ WHERE CalendarID = $1;
 -- name: DeleteAcademicCalendarEntry :exec
 DELETE FROM AcademicCalendar
 WHERE CalendarID = $1;
+
+-- name: GetCurriculum :one
+SELECT * FROM Curriculum
+WHERE CurriculumID = $1
+LIMIT 1;
+
+-- name: ListCurriculum :many
+SELECT * FROM Curriculum
+ORDER BY Description;
+
+-- name: CreateCurriculum :one
+INSERT INTO Curriculum (SubjectID, Description)
+VALUES ($1, $2)
+RETURNING *;
+
+-- name: UpdateCurriculum :exec
+UPDATE Curriculum
+SET SubjectID = $2, Description = $3
+WHERE CurriculumID = $1;
+
+-- name: DeleteCurriculum :exec
+DELETE FROM Curriculum
+WHERE CurriculumID = $1;

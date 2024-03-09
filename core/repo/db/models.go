@@ -36,6 +36,15 @@ type Curriculum struct {
 	Description  string
 }
 
+type Curriculumschedule struct {
+	Scheduleid   int32
+	Curriculumid int32
+	Subjectid    int32
+	Semesterid   int32
+	Dayoffset    int32
+	Description  string
+}
+
 type Exam struct {
 	Examid      int32
 	Subjectid   int32

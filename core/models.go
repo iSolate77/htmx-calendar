@@ -1,11 +1,11 @@
 package core
 
-type subject struct {
+type Subject struct {
 	ID   int
 	Name string
 }
 
-type exam struct {
+type Exam struct {
 	ID          int
 	subjectID   int
 	categoryID  int
@@ -13,13 +13,13 @@ type exam struct {
 	Date        string
 }
 
-type holiday struct {
+type Holiday struct {
 	ID         int
 	categoryID int
 	Date       string
 }
 
-type semester struct {
+type Semester struct {
 	ID            int
 	yearID        int
 	Name          string
@@ -27,7 +27,7 @@ type semester struct {
 	WeeksDuration int
 }
 
-type academicCalendar struct {
+type AcademicCalendar struct {
 	ID           int
 	semesterID   int
 	DayNumber    int
@@ -38,24 +38,24 @@ type academicCalendar struct {
 	Description  string
 }
 
-type academicYear struct {
+type AcademicYear struct {
 	ID        int
 	StartDate string
 	EndDate   string
 }
 
-type category struct {
+type Category struct {
 	ID   int
 	Name string
 }
 
-type curriculum struct {
+type Curriculum struct {
 	ID          int
 	subjectID   int
 	Description string
 }
 
-type curriculumSchedule struct {
+type CurriculumSchedule struct {
 	ID           int
 	curriculumID int
 	subjectID    int

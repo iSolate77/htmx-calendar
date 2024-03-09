@@ -11,6 +11,24 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createCurriculum = `-- name: CreateCurriculum :one
+INSERT INTO Curriculum (SubjectID, Description)
+VALUES ($1, $2)
+RETURNING curriculumid, subjectid, description
+`
+
+type CreateCurriculumParams struct {
+	Subjectid   int32
+	Description string
+}
+
+func (q *Queries) CreateCurriculum(ctx context.Context, arg CreateCurriculumParams) (Curriculum, error) {
+	row := q.db.QueryRow(ctx, createCurriculum, arg.Subjectid, arg.Description)
+	var i Curriculum
+	err := row.Scan(&i.Curriculumid, &i.Subjectid, &i.Description)
+	return i, err
+}
+
 const createSubject = `-- name: CreateSubject :one
 INSERT INTO Subjects (Name)
 VALUES ($1)
@@ -31,6 +49,16 @@ WHERE CalendarID = $1
 
 func (q *Queries) DeleteAcademicCalendarEntry(ctx context.Context, calendarid int32) error {
 	_, err := q.db.Exec(ctx, deleteAcademicCalendarEntry, calendarid)
+	return err
+}
+
+const deleteCurriculum = `-- name: DeleteCurriculum :exec
+DELETE FROM Curriculum
+WHERE CurriculumID = $1
+`
+
+func (q *Queries) DeleteCurriculum(ctx context.Context, curriculumid int32) error {
+	_, err := q.db.Exec(ctx, deleteCurriculum, curriculumid)
 	return err
 }
 
@@ -79,6 +107,19 @@ func (q *Queries) GetAcademicCalendarForSemester(ctx context.Context, semesterid
 	return items, nil
 }
 
+const getCurriculum = `-- name: GetCurriculum :one
+SELECT curriculumid, subjectid, description FROM Curriculum
+WHERE CurriculumID = $1
+LIMIT 1
+`
+
+func (q *Queries) GetCurriculum(ctx context.Context, curriculumid int32) (Curriculum, error) {
+	row := q.db.QueryRow(ctx, getCurriculum, curriculumid)
+	var i Curriculum
+	err := row.Scan(&i.Curriculumid, &i.Subjectid, &i.Description)
+	return i, err
+}
+
 const getSubject = `-- name: GetSubject :one
 SELECT subjectid, name FROM Subjects
 WHERE SubjectID = $1
@@ -118,6 +159,31 @@ func (q *Queries) InsertAcademicCalendarEntry(ctx context.Context, arg InsertAca
 		arg.Description,
 	)
 	return err
+}
+
+const listCurriculum = `-- name: ListCurriculum :many
+SELECT curriculumid, subjectid, description FROM Curriculum
+ORDER BY Description
+`
+
+func (q *Queries) ListCurriculum(ctx context.Context) ([]Curriculum, error) {
+	rows, err := q.db.Query(ctx, listCurriculum)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Curriculum
+	for rows.Next() {
+		var i Curriculum
+		if err := rows.Scan(&i.Curriculumid, &i.Subjectid, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listSubjects = `-- name: ListSubjects :many
@@ -171,6 +237,23 @@ func (q *Queries) UpdateAcademicCalendarEntry(ctx context.Context, arg UpdateAca
 		arg.Holidayid,
 		arg.Description,
 	)
+	return err
+}
+
+const updateCurriculum = `-- name: UpdateCurriculum :exec
+UPDATE Curriculum
+SET SubjectID = $2, Description = $3
+WHERE CurriculumID = $1
+`
+
+type UpdateCurriculumParams struct {
+	Curriculumid int32
+	Subjectid    int32
+	Description  string
+}
+
+func (q *Queries) UpdateCurriculum(ctx context.Context, arg UpdateCurriculumParams) error {
+	_, err := q.db.Exec(ctx, updateCurriculum, arg.Curriculumid, arg.Subjectid, arg.Description)
 	return err
 }
 
