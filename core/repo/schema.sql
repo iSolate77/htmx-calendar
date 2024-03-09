@@ -1,64 +1,64 @@
 CREATE TABLE IF NOT EXISTS AcademicYears (
-    YearID SERIAL PRIMARY KEY,
+    ID SERIAL PRIMARY KEY,
     StartDate DATE NOT NULL,
     EndDate DATE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Semesters (
-    SemesterID SERIAL PRIMARY KEY,
-    YearID INTEGER NOT NULL REFERENCES AcademicYears(YearID),
+    ID SERIAL PRIMARY KEY,
+    Year_ID INTEGER NOT NULL REFERENCES AcademicYears(ID),
     Name VARCHAR(255) NOT NULL,
     StartDate DATE NOT NULL,
     WeeksDuration INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Subjects (
-    SubjectID SERIAL PRIMARY KEY,
+    ID SERIAL PRIMARY KEY,
     Name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Categories (
-    CategoryID SERIAL PRIMARY KEY,
+    ID SERIAL PRIMARY KEY,
     Name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Curriculum (
-    CurriculumID SERIAL PRIMARY KEY,
-    SubjectID INTEGER NOT NULL REFERENCES Subjects(SubjectID),
+    ID SERIAL PRIMARY KEY,
+    Subject_id INTEGER NOT NULL REFERENCES Subjects(ID),
     Description TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Exams (
-    ExamID SERIAL PRIMARY KEY,
-    SubjectID INTEGER NOT NULL REFERENCES Subjects(SubjectID),
-    CategoryID INTEGER NOT NULL REFERENCES Categories(CategoryID),
+    ID SERIAL PRIMARY KEY,
+    Subject_ID INTEGER NOT NULL REFERENCES Subjects(ID),
+    Category_ID INTEGER NOT NULL REFERENCES Categories(ID),
     Description TEXT NOT NULL,
     Date VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Holidays (
-    HolidayID SERIAL PRIMARY KEY,
-    CategoryID INTEGER NOT NULL REFERENCES Categories(CategoryID),
+    ID SERIAL PRIMARY KEY,
+    Category_ID INTEGER NOT NULL REFERENCES Categories(ID),
     Date VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS AcademicCalendar (
-    CalendarID SERIAL PRIMARY KEY,
-    SemesterID INTEGER NOT NULL REFERENCES Semesters(SemesterID),
+    ID SERIAL PRIMARY KEY,
+    Semester_ID INTEGER NOT NULL REFERENCES Semesters(ID),
     DayNumber INTEGER NOT NULL,
-    SubjectID INTEGER REFERENCES Subjects(SubjectID),
-    CurriculumID INTEGER REFERENCES Curriculum(CurriculumID),
-    ExamID INTEGER REFERENCES Exams(ExamID),
-    HolidayID INTEGER REFERENCES Holidays(HolidayID),
+    Subject_ID INTEGER REFERENCES Subjects(ID),
+    Curriculum_ID INTEGER REFERENCES Curriculum(ID),
+    Exam_ID INTEGER REFERENCES Exams(ID),
+    Holiday_ID INTEGER REFERENCES Holidays(ID),
     Description TEXT
 );
 
 CREATE TABLE IF NOT EXISTS CurriculumSchedule (
-    ScheduleID SERIAL PRIMARY KEY,
-    CurriculumID INTEGER NOT NULL REFERENCES Curriculum(CurriculumID),
-    SubjectID INTEGER NOT NULL REFERENCES Subjects(SubjectID),
-    SemesterID INTEGER NOT NULL REFERENCES Semesters(SemesterID),
+    ID SERIAL PRIMARY KEY,
+    Curriculum_ID INTEGER NOT NULL REFERENCES Curriculum(ID),
+    Subject_ID INTEGER NOT NULL REFERENCES Subjects(ID),
+    Semester_ID INTEGER NOT NULL REFERENCES Semesters(ID),
     DayOffset INTEGER NOT NULL,
     Description TEXT NOT NULL,
-    UNIQUE (CurriculumID, SubjectID, SemesterID, DayOffset)
+    UNIQUE (Curriculum_ID, Subject_ID, Semester_ID, DayOffset)
 );

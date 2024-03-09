@@ -51,7 +51,7 @@ type Category struct {
 
 type Curriculum struct {
 	ID          int
-	subjectID   int
+	SubjectID   int
 	Description string
 }
 
