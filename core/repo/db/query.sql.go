@@ -12,74 +12,115 @@ import (
 )
 
 const createCurriculum = `-- name: CreateCurriculum :one
-INSERT INTO Curriculum (SubjectID, Description)
+INSERT INTO Curriculum (Subject_id, Description)
 VALUES ($1, $2)
-RETURNING curriculumid, subjectid, description
+RETURNING id, subject_id, description
 `
 
 type CreateCurriculumParams struct {
-	Subjectid   int32
+	SubjectID   int32
 	Description string
 }
 
 func (q *Queries) CreateCurriculum(ctx context.Context, arg CreateCurriculumParams) (Curriculum, error) {
-	row := q.db.QueryRow(ctx, createCurriculum, arg.Subjectid, arg.Description)
+	row := q.db.QueryRow(ctx, createCurriculum, arg.SubjectID, arg.Description)
 	var i Curriculum
-	err := row.Scan(&i.Curriculumid, &i.Subjectid, &i.Description)
+	err := row.Scan(&i.ID, &i.SubjectID, &i.Description)
+	return i, err
+}
+
+const createExam = `-- name: CreateExam :one
+INSERT INTO Exams (Date, Subject_id, Description, Category_id)
+VALUES ($1, $2, $3, $4)
+RETURNING id, subject_id, category_id, description, date
+`
+
+type CreateExamParams struct {
+	Date        string
+	SubjectID   int32
+	Description string
+	CategoryID  int32
+}
+
+func (q *Queries) CreateExam(ctx context.Context, arg CreateExamParams) (Exam, error) {
+	row := q.db.QueryRow(ctx, createExam,
+		arg.Date,
+		arg.SubjectID,
+		arg.Description,
+		arg.CategoryID,
+	)
+	var i Exam
+	err := row.Scan(
+		&i.ID,
+		&i.SubjectID,
+		&i.CategoryID,
+		&i.Description,
+		&i.Date,
+	)
 	return i, err
 }
 
 const createSubject = `-- name: CreateSubject :one
 INSERT INTO Subjects (Name)
 VALUES ($1)
-RETURNING subjectid, name
+RETURNING id, name
 `
 
 func (q *Queries) CreateSubject(ctx context.Context, name string) (Subject, error) {
 	row := q.db.QueryRow(ctx, createSubject, name)
 	var i Subject
-	err := row.Scan(&i.Subjectid, &i.Name)
+	err := row.Scan(&i.ID, &i.Name)
 	return i, err
 }
 
 const deleteAcademicCalendarEntry = `-- name: DeleteAcademicCalendarEntry :exec
 DELETE FROM AcademicCalendar
-WHERE CalendarID = $1
+WHERE id = $1
 `
 
-func (q *Queries) DeleteAcademicCalendarEntry(ctx context.Context, calendarid int32) error {
-	_, err := q.db.Exec(ctx, deleteAcademicCalendarEntry, calendarid)
+func (q *Queries) DeleteAcademicCalendarEntry(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteAcademicCalendarEntry, id)
 	return err
 }
 
 const deleteCurriculum = `-- name: DeleteCurriculum :exec
 DELETE FROM Curriculum
-WHERE CurriculumID = $1
+WHERE id = $1
 `
 
-func (q *Queries) DeleteCurriculum(ctx context.Context, curriculumid int32) error {
-	_, err := q.db.Exec(ctx, deleteCurriculum, curriculumid)
+func (q *Queries) DeleteCurriculum(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteCurriculum, id)
+	return err
+}
+
+const deleteExam = `-- name: DeleteExam :exec
+DELETE FROM Exams
+WHERE id = $1
+`
+
+func (q *Queries) DeleteExam(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteExam, id)
 	return err
 }
 
 const deleteSubject = `-- name: DeleteSubject :exec
 DELETE FROM Subjects
-WHERE SubjectID = $1
+WHERE id = $1
 `
 
-func (q *Queries) DeleteSubject(ctx context.Context, subjectid int32) error {
-	_, err := q.db.Exec(ctx, deleteSubject, subjectid)
+func (q *Queries) DeleteSubject(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteSubject, id)
 	return err
 }
 
 const getAcademicCalendarForSemester = `-- name: GetAcademicCalendarForSemester :many
-SELECT calendarid, semesterid, daynumber, subjectid, curriculumid, examid, holidayid, description FROM AcademicCalendar
-WHERE SemesterID = $1
+SELECT id, semester_id, daynumber, subject_id, curriculum_id, exam_id, holiday_id, description FROM AcademicCalendar
+WHERE Semester_id = $1
 ORDER BY DayNumber ASC
 `
 
-func (q *Queries) GetAcademicCalendarForSemester(ctx context.Context, semesterid int32) ([]Academiccalendar, error) {
-	rows, err := q.db.Query(ctx, getAcademicCalendarForSemester, semesterid)
+func (q *Queries) GetAcademicCalendarForSemester(ctx context.Context, semesterID int32) ([]Academiccalendar, error) {
+	rows, err := q.db.Query(ctx, getAcademicCalendarForSemester, semesterID)
 	if err != nil {
 		return nil, err
 	}
@@ -88,13 +129,13 @@ func (q *Queries) GetAcademicCalendarForSemester(ctx context.Context, semesterid
 	for rows.Next() {
 		var i Academiccalendar
 		if err := rows.Scan(
-			&i.Calendarid,
-			&i.Semesterid,
+			&i.ID,
+			&i.SemesterID,
 			&i.Daynumber,
-			&i.Subjectid,
-			&i.Curriculumid,
-			&i.Examid,
-			&i.Holidayid,
+			&i.SubjectID,
+			&i.CurriculumID,
+			&i.ExamID,
+			&i.HolidayID,
 			&i.Description,
 		); err != nil {
 			return nil, err
@@ -108,61 +149,80 @@ func (q *Queries) GetAcademicCalendarForSemester(ctx context.Context, semesterid
 }
 
 const getCurriculum = `-- name: GetCurriculum :one
-SELECT curriculumid, subjectid, description FROM Curriculum
-WHERE CurriculumID = $1
+SELECT id, subject_id, description FROM Curriculum
+WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetCurriculum(ctx context.Context, curriculumid int32) (Curriculum, error) {
-	row := q.db.QueryRow(ctx, getCurriculum, curriculumid)
+func (q *Queries) GetCurriculum(ctx context.Context, id int32) (Curriculum, error) {
+	row := q.db.QueryRow(ctx, getCurriculum, id)
 	var i Curriculum
-	err := row.Scan(&i.Curriculumid, &i.Subjectid, &i.Description)
+	err := row.Scan(&i.ID, &i.SubjectID, &i.Description)
+	return i, err
+}
+
+const getExam = `-- name: GetExam :one
+SELECT id, subject_id, category_id, description, date FROM Exams
+WHERE id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetExam(ctx context.Context, id int32) (Exam, error) {
+	row := q.db.QueryRow(ctx, getExam, id)
+	var i Exam
+	err := row.Scan(
+		&i.ID,
+		&i.SubjectID,
+		&i.CategoryID,
+		&i.Description,
+		&i.Date,
+	)
 	return i, err
 }
 
 const getSubject = `-- name: GetSubject :one
-SELECT subjectid, name FROM Subjects
-WHERE SubjectID = $1
+SELECT id, name FROM Subjects
+WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetSubject(ctx context.Context, subjectid int32) (Subject, error) {
-	row := q.db.QueryRow(ctx, getSubject, subjectid)
+func (q *Queries) GetSubject(ctx context.Context, id int32) (Subject, error) {
+	row := q.db.QueryRow(ctx, getSubject, id)
 	var i Subject
-	err := row.Scan(&i.Subjectid, &i.Name)
+	err := row.Scan(&i.ID, &i.Name)
 	return i, err
 }
 
 const insertAcademicCalendarEntry = `-- name: InsertAcademicCalendarEntry :exec
-INSERT INTO AcademicCalendar (SemesterID, DayNumber, SubjectID, CurriculumID, ExamID, HolidayID, Description)
+INSERT INTO AcademicCalendar (Semester_id, DayNumber, Subject_id, Curriculum_id, Exam_id, Holiday_id, Description)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 `
 
 type InsertAcademicCalendarEntryParams struct {
-	Semesterid   int32
+	SemesterID   int32
 	Daynumber    int32
-	Subjectid    pgtype.Int4
-	Curriculumid pgtype.Int4
-	Examid       pgtype.Int4
-	Holidayid    pgtype.Int4
+	SubjectID    pgtype.Int4
+	CurriculumID pgtype.Int4
+	ExamID       pgtype.Int4
+	HolidayID    pgtype.Int4
 	Description  pgtype.Text
 }
 
 func (q *Queries) InsertAcademicCalendarEntry(ctx context.Context, arg InsertAcademicCalendarEntryParams) error {
 	_, err := q.db.Exec(ctx, insertAcademicCalendarEntry,
-		arg.Semesterid,
+		arg.SemesterID,
 		arg.Daynumber,
-		arg.Subjectid,
-		arg.Curriculumid,
-		arg.Examid,
-		arg.Holidayid,
+		arg.SubjectID,
+		arg.CurriculumID,
+		arg.ExamID,
+		arg.HolidayID,
 		arg.Description,
 	)
 	return err
 }
 
 const listCurriculum = `-- name: ListCurriculum :many
-SELECT curriculumid, subjectid, description FROM Curriculum
+SELECT id, subject_id, description FROM Curriculum
 ORDER BY Description
 `
 
@@ -175,7 +235,38 @@ func (q *Queries) ListCurriculum(ctx context.Context) ([]Curriculum, error) {
 	var items []Curriculum
 	for rows.Next() {
 		var i Curriculum
-		if err := rows.Scan(&i.Curriculumid, &i.Subjectid, &i.Description); err != nil {
+		if err := rows.Scan(&i.ID, &i.SubjectID, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listExams = `-- name: ListExams :many
+SELECT id, subject_id, category_id, description, date FROM Exams
+ORDER BY Date
+`
+
+func (q *Queries) ListExams(ctx context.Context) ([]Exam, error) {
+	rows, err := q.db.Query(ctx, listExams)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Exam
+	for rows.Next() {
+		var i Exam
+		if err := rows.Scan(
+			&i.ID,
+			&i.SubjectID,
+			&i.CategoryID,
+			&i.Description,
+			&i.Date,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -187,7 +278,7 @@ func (q *Queries) ListCurriculum(ctx context.Context) ([]Curriculum, error) {
 }
 
 const listSubjects = `-- name: ListSubjects :many
-SELECT subjectid, name FROM Subjects
+SELECT id, name FROM Subjects
 ORDER BY Name
 `
 
@@ -200,7 +291,7 @@ func (q *Queries) ListSubjects(ctx context.Context) ([]Subject, error) {
 	var items []Subject
 	for rows.Next() {
 		var i Subject
-		if err := rows.Scan(&i.Subjectid, &i.Name); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -213,28 +304,28 @@ func (q *Queries) ListSubjects(ctx context.Context) ([]Subject, error) {
 
 const updateAcademicCalendarEntry = `-- name: UpdateAcademicCalendarEntry :exec
 UPDATE AcademicCalendar
-SET DayNumber = $2, SubjectID = $3, CurriculumID = $4, ExamID = $5, HolidayID = $6, Description = $7
-WHERE CalendarID = $1
+SET DayNumber = $2, Subject_id = $3, Curriculum_id = $4, Exam_id = $5, Holiday_id = $6, Description = $7
+WHERE id = $1
 `
 
 type UpdateAcademicCalendarEntryParams struct {
-	Calendarid   int32
+	ID           int32
 	Daynumber    int32
-	Subjectid    pgtype.Int4
-	Curriculumid pgtype.Int4
-	Examid       pgtype.Int4
-	Holidayid    pgtype.Int4
+	SubjectID    pgtype.Int4
+	CurriculumID pgtype.Int4
+	ExamID       pgtype.Int4
+	HolidayID    pgtype.Int4
 	Description  pgtype.Text
 }
 
 func (q *Queries) UpdateAcademicCalendarEntry(ctx context.Context, arg UpdateAcademicCalendarEntryParams) error {
 	_, err := q.db.Exec(ctx, updateAcademicCalendarEntry,
-		arg.Calendarid,
+		arg.ID,
 		arg.Daynumber,
-		arg.Subjectid,
-		arg.Curriculumid,
-		arg.Examid,
-		arg.Holidayid,
+		arg.SubjectID,
+		arg.CurriculumID,
+		arg.ExamID,
+		arg.HolidayID,
 		arg.Description,
 	)
 	return err
@@ -242,33 +333,58 @@ func (q *Queries) UpdateAcademicCalendarEntry(ctx context.Context, arg UpdateAca
 
 const updateCurriculum = `-- name: UpdateCurriculum :exec
 UPDATE Curriculum
-SET SubjectID = $2, Description = $3
-WHERE CurriculumID = $1
+SET Subject_id = $2, Description = $3
+WHERE id = $1
 `
 
 type UpdateCurriculumParams struct {
-	Curriculumid int32
-	Subjectid    int32
-	Description  string
+	ID          int32
+	SubjectID   int32
+	Description string
 }
 
 func (q *Queries) UpdateCurriculum(ctx context.Context, arg UpdateCurriculumParams) error {
-	_, err := q.db.Exec(ctx, updateCurriculum, arg.Curriculumid, arg.Subjectid, arg.Description)
+	_, err := q.db.Exec(ctx, updateCurriculum, arg.ID, arg.SubjectID, arg.Description)
+	return err
+}
+
+const updateExam = `-- name: UpdateExam :exec
+UPDATE Exams
+SET Date = $2, Subject_id = $3, Description = $4, Category_id = $5
+WHERE id = $1
+`
+
+type UpdateExamParams struct {
+	ID          int32
+	Date        string
+	SubjectID   int32
+	Description string
+	CategoryID  int32
+}
+
+func (q *Queries) UpdateExam(ctx context.Context, arg UpdateExamParams) error {
+	_, err := q.db.Exec(ctx, updateExam,
+		arg.ID,
+		arg.Date,
+		arg.SubjectID,
+		arg.Description,
+		arg.CategoryID,
+	)
 	return err
 }
 
 const updateSubject = `-- name: UpdateSubject :exec
 UPDATE Subjects
 SET Name = $2
-WHERE SubjectID = $1
+WHERE id = $1
 `
 
 type UpdateSubjectParams struct {
-	Subjectid int32
-	Name      string
+	ID   int32
+	Name string
 }
 
 func (q *Queries) UpdateSubject(ctx context.Context, arg UpdateSubjectParams) error {
-	_, err := q.db.Exec(ctx, updateSubject, arg.Subjectid, arg.Name)
+	_, err := q.db.Exec(ctx, updateSubject, arg.ID, arg.Name)
 	return err
 }

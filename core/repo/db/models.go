@@ -9,65 +9,65 @@ import (
 )
 
 type Academiccalendar struct {
-	Calendarid   int32
-	Semesterid   int32
+	ID           int32
+	SemesterID   int32
 	Daynumber    int32
-	Subjectid    pgtype.Int4
-	Curriculumid pgtype.Int4
-	Examid       pgtype.Int4
-	Holidayid    pgtype.Int4
+	SubjectID    pgtype.Int4
+	CurriculumID pgtype.Int4
+	ExamID       pgtype.Int4
+	HolidayID    pgtype.Int4
 	Description  pgtype.Text
 }
 
 type Academicyear struct {
-	Yearid    int32
+	ID        int32
 	Startdate pgtype.Date
 	Enddate   pgtype.Date
 }
 
 type Category struct {
-	Categoryid int32
-	Name       string
+	ID   int32
+	Name string
 }
 
 type Curriculum struct {
-	Curriculumid int32
-	Subjectid    int32
-	Description  string
+	ID          int32
+	SubjectID   int32
+	Description string
 }
 
 type Curriculumschedule struct {
-	Scheduleid   int32
-	Curriculumid int32
-	Subjectid    int32
-	Semesterid   int32
+	ID           int32
+	CurriculumID int32
+	SubjectID    int32
+	SemesterID   int32
 	Dayoffset    int32
 	Description  string
 }
 
 type Exam struct {
-	Examid      int32
-	Subjectid   int32
-	Categoryid  int32
+	ID          int32
+	SubjectID   int32
+	CategoryID  int32
 	Description string
 	Date        string
 }
 
 type Holiday struct {
-	Holidayid  int32
-	Categoryid int32
+	ID         int32
+	CategoryID int32
 	Date       string
 }
 
 type Semester struct {
-	Semesterid    int32
-	Yearid        int32
+	ID            int32
+	YearID        int32
 	Name          string
 	Startdate     pgtype.Date
 	Weeksduration int32
 }
 
 type Subject struct {
-	Subjectid int32
-	Name      string
+	ID   int32
+	Name string
 }

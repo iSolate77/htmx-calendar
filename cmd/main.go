@@ -3,8 +3,9 @@ package main
 import (
 	"html/template"
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 )
 
 type Templatereader struct {
@@ -16,9 +17,11 @@ func (t *Templatereader) Render(w io.Writer, name string, data interface{}) erro
 }
 
 func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 	tmpls, err := template.ParseGlob("web/templates/*.html")
 	if err != nil {
-		log.Fatalf("Error parsing templates: %s", err.Error())
+		logger.Error("Error parsing templates", "err", err)
 	}
 
 	renderer := &Templatereader{
@@ -35,6 +38,6 @@ func main() {
 		renderer.Render(w, "dropdownMenu.html", nil)
 	})
 
-	log.Println("Server started on port 8080")
+	logger.Info("Server started on port 8080")
 	http.ListenAndServe(":8080", mux)
 }

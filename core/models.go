@@ -7,8 +7,8 @@ type Subject struct {
 
 type Exam struct {
 	ID          int
-	subjectID   int
-	categoryID  int
+	SubjectID   int
+	CategoryID  int
 	Description string
 	Date        string
 }
